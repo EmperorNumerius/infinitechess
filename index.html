@@ -1,21 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinite Chessboard</title>
-    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://unpkg.com/chessboard.js@1.0.0/chessboard-1.0.0.min.css" />
+    <style>
+        #board {
+            width: 400px;
+        }
+        .container {
+            overflow: hidden;
+            position: relative;
+            width: 800px;
+            height: 800px;
+        }
+        .viewport {
+            position: absolute;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Infinite Chessboard</h1>
-    </header>
-    <main>
-        <div id="board" class="chessboard"></div>
-        <div class="controls">
-            <button onclick="resetBoard()">Reset Board</button>
-        </div>
-    </main>
-    <script src="scripts/main.js"></script>
+    <div class="container">
+        <div id="board" class="viewport"></div>
+    </div>
+    <script src="https://unpkg.com/chessboard.js@1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const boardElement = $('#board');
+        let board = Chessboard('board', 'start');
+        let offsetX = 0;
+        let offsetY = 0;
+
+        function updateBoard() {
+            // Clear the board
+            boardElement.empty();
+            
+            // Create a new board with offset positions
+            board = Chessboard('board', {
+                position: generatePosition(offsetX, offsetY)
+            });
+        }
+
+        function generatePosition(offsetX, offsetY) {
+            // Generate a FEN string or a position object based on offsets
+            // This is a simplified example and should be expanded for full functionality
+            let position = {};
+            const pieces = ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'];
+            for (let i = 0; i < 8; i++) {
+                let row = 8 - i + offsetY;
+                for (let j = 0; j < 8; j++) {
+                    let col = String.fromCharCode(97 + j + offsetX); // 97 is 'a'
+                    if (i === 1) {
+                        position[col + row] = 'p';
+                    } else if (i === 6) {
+                        position[col + row] = 'P';
+                    } else if (i === 0) {
+                        position[col + row] = pieces[j];
+                    } else if (i === 7) {
+                        position[col + row] = pieces[j].toUpperCase();
+                    }
+                }
+            }
+            return position;
+        }
+
+        function handleScroll(event) {
+            const delta = 1; // Adjust the step size as needed
+            if (event.deltaY > 0) {
+                offsetY -= delta;
+            } else if (event.deltaY < 0) {
+                offsetY += delta;
+            } else if (event.deltaX > 0) {
+                offsetX -= delta;
+            } else if (event.deltaX < 0) {
+                offsetX += delta;
+            }
+            updateBoard();
+        }
+
+        document.addEventListener('wheel', handleScroll);
+
+        // Initial board setup
+        updateBoard();
+    </script>
 </body>
 </html>
